@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
-from openai import OpenAI
+import google.generativeai as genai
 import os
 
 # --- 1. PRIVACY & SECURITY ---
@@ -35,9 +35,13 @@ if not check_password():
 st.set_page_config(page_title="My Private NEPSE AI", page_icon="📈", layout="wide")
 st.title("📈 Private NEPSE AI Advisor & Predictor")
 
-# Set your OpenAI API Key securely in your environment variables
-# os.environ["OPENAI_API_KEY"] = "your-openai-api-key-here"
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "sk-placeholder-key"))
+# Configure Google Gemini API securely
+api_key = os.getenv("GEMINI_API_KEY", "your-gemini-key-here")
+genai.configure(api_key=api_key)
+
+# Initialize the Gemini model
+model = genai.GenerativeModel('gemini-1.5-flash', 
+                              system_instruction="You are a private financial advisor and tutor specializing in the Nepal Stock Exchange (NEPSE). You give highly accurate, cautious, and educational advice.")
 
 # --- 3. DATA FETCHING (Mock for NEPSE) ---
 @st.cache_data
@@ -89,35 +93,32 @@ with tab2:
     
     # Initialize chat history
     if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {"role": "system", "content": "You are a private financial advisor and tutor specializing in the Nepal Stock Exchange (NEPSE). You give highly accurate, cautious, and educational advice."}
-        ]
+        st.session_state.messages = []
 
     # Display chat messages
     for message in st.session_state.messages:
-        if message["role"] != "system":
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
     # React to user input
     if prompt := st.chat_input("Ask your AI advisor... (e.g., 'Teach me about RSI indicators')"):
-        # Display user message in chat message container
+        # Display user message
         st.chat_message("user").markdown(prompt)
-        # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
 
         try:
-            # Generate AI response
-            response = client.chat.completions.create(
-                model="gpt-4-turbo",
-                messages=st.session_state.messages
-            )
-            msg = response.choices[0].message.content
+            # Convert Streamlit history to Gemini format
+            gemini_history = []
+            for msg in st.session_state.messages[:-1]:
+                role = "user" if msg["role"] == "user" else "model"
+                gemini_history.append({"role": role, "parts": [msg["content"]]})
             
-            # Display assistant response
+            chat = model.start_chat(history=gemini_history)
+            response = chat.send_message(prompt)
+            msg_content = response.text
+            
             with st.chat_message("assistant"):
-                st.markdown(msg)
-            # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": msg})
+                st.markdown(msg_content)
+            st.session_state.messages.append({"role": "assistant", "content": msg_content})
         except Exception as e:
-            st.error("Error communicating with AI. Please make sure your OpenAI API key is set.")
+            st.error(f"Error communicating with AI: {e}. Please make sure your GEMINI_API_KEY is set.")
