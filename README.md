@@ -1,11 +1,11 @@
 # Private NEPSE AI Advisor
 
-A private web application built with Python and Streamlit to analyze the Nepal Stock Exchange (NEPSE), predict future trends, and act as a personal trading tutor using LLMs.
+A private web application built with Python and Streamlit to analyze the Nepal Stock Exchange (NEPSE), predict future trends, and act as a personal trading tutor using Google Gemini AI.
 
 ## Features
 - **Privacy First**: Password-protected access.
 - **Market Analysis**: Historical charts and basic future trend prediction algorithms.
-- **AI Tutor**: Integrated AI chat to teach you trading concepts and act as your financial advisor.
+- **AI Tutor**: Integrated AI chat powered by Google Gemini to teach you trading concepts and act as your financial advisor.
 
 ## Setup Instructions
 
@@ -22,13 +22,13 @@ A private web application built with Python and Streamlit to analyze the Nepal S
    ```
 
 3. **Set your API Key:**
-   You will need an OpenAI API key for the AI Tutor to work. Set it in your terminal:
+   You will need a free Google Gemini API key for the AI Tutor to work. Get it at [Google AI Studio](https://aistudio.google.com/app/apikey). Set it in your terminal:
    ```bash
    # Windows
-   set OPENAI_API_KEY="your_api_key_here"
+   set GEMINI_API_KEY="your_api_key_here"
    
    # Mac/Linux
-   export OPENAI_API_KEY="your_api_key_here"
+   export GEMINI_API_KEY="your_api_key_here"
    ```
 
 4. **Run the Website:**
